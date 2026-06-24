@@ -20,6 +20,7 @@ export default function TaskForm({ initial, onSubmit, onCancel }: TaskFormProps)
   const [startDate, setStartDate] = useState(initial?.startDate ?? todayStr());
   const [mode, setMode] = useState<"weekly" | "interval">(initial?.intervalDays ? "interval" : "weekly");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   const canSubmit = description.trim() && (mode === "weekly" ? daysOfWeek.length > 0 : (intervalDays ?? 0) > 0);
 
@@ -27,6 +28,7 @@ export default function TaskForm({ initial, onSubmit, onCancel }: TaskFormProps)
     e.preventDefault();
     if (!canSubmit) return;
     setSaving(true);
+    setError("");
     try {
       await onSubmit({
         description: description.trim(),
@@ -36,6 +38,8 @@ export default function TaskForm({ initial, onSubmit, onCancel }: TaskFormProps)
         intervalDays: mode === "interval" ? intervalDays : null,
         startDate: mode === "interval" ? startDate : "",
       });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao salvar. Verifique o Firestore.");
     } finally {
       setSaving(false);
     }
@@ -99,7 +103,7 @@ export default function TaskForm({ initial, onSubmit, onCancel }: TaskFormProps)
           </button>
           <button
             type="button"
-            onClick={() => setMode("interval")}
+            onClick={() => { setMode("interval"); if (intervalDays === null) setIntervalDays(1); }}
             className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition cursor-pointer ${
               mode === "interval"
                 ? "bg-blue-600 text-white dark:text-black"
@@ -150,6 +154,10 @@ export default function TaskForm({ initial, onSubmit, onCancel }: TaskFormProps)
           </div>
         )}
       </div>
+
+      {error && (
+        <p className="text-sm text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg px-3 py-2">{error}</p>
+      )}
 
       <div className="flex gap-3 pt-2">
         <button
