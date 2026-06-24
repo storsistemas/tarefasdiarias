@@ -22,11 +22,11 @@ export default function TaskForm({ initial, onSubmit, onCancel }: TaskFormProps)
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  const canSubmit = description.trim() && (mode === "weekly" ? daysOfWeek.length > 0 : (intervalDays ?? 0) > 0);
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!canSubmit) return;
+    if (!description.trim()) return;
+    if (mode === "weekly" && daysOfWeek.length === 0) return;
+    if (mode === "interval" && (intervalDays ?? 0) <= 0) return;
     setSaving(true);
     setError("");
     try {
@@ -162,7 +162,7 @@ export default function TaskForm({ initial, onSubmit, onCancel }: TaskFormProps)
       <div className="flex gap-3 pt-2">
         <button
           type="submit"
-          disabled={saving || !canSubmit}
+          disabled={saving || (mode === "weekly" ? daysOfWeek.length === 0 : (intervalDays ?? 0) <= 0)}
           className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white dark:text-black font-medium py-2 rounded-lg transition cursor-pointer disabled:cursor-not-allowed"
         >
           {saving ? "Salvando..." : "Salvar"}
