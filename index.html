@@ -8,72 +8,28 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: system-ui, -apple-system, sans-serif;
-      background: #f3f4f6;
+      background: linear-gradient(135deg, #eff6ff, #eef2ff);
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
       color: #111827;
     }
-    .container { text-align: center; padding: 2rem; max-width: 500px; }
-    h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }
-    p { color: #6b7280; margin-bottom: 1rem; }
-    code {
-      background: #e5e7eb;
-      padding: 0.25rem 0.75rem;
-      border-radius: 4px;
-      font-size: 0.9rem;
-    }
-    .btn {
-      display: inline-block;
-      background: #2563eb;
-      color: #fff;
-      padding: 0.75rem 2rem;
-      border-radius: 0.5rem;
-      text-decoration: none;
-      font-weight: 500;
-      margin-top: 1rem;
-    }
+    .card { text-align: center; padding: 3rem 2rem; max-width: 500px; background: #fff; border-radius: 1rem; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
+    h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    p { color: #6b7280; margin-bottom: 1.5rem; }
+    .spinner { width: 32px; height: 32px; border: 3px solid #e5e7eb; border-top-color: #2563eb; border-radius: 50%; animation: spin .8s linear infinite; margin: 1rem auto; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn { display: inline-block; background: #2563eb; color: #fff; padding: .75rem 2rem; border-radius: .5rem; text-decoration: none; font-weight: 500; }
     .btn:hover { background: #1d4ed8; }
-    hr { margin: 1.5rem 0; border: none; border-top: 1px solid #e5e7eb; }
-    .step { text-align: left; margin: 0.75rem 0; }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="card">
     <h1>Tarefas Diárias</h1>
-    <p>Aplicação de gerenciamento de atividades recorrentes</p>
-
-    <hr />
-
-    <h3 style="margin-bottom:1rem;">Como executar:</h3>
-
-    <div class="step">
-      <strong>1.</strong> Instale as dependências:<br />
-      <code>npm install</code>
-    </div>
-
-    <div class="step">
-      <strong>2.</strong> Gere os arquivos estáticos:<br />
-      <code>npm run build</code>
-    </div>
-
-    <div class="step">
-      <strong>3.</strong> Inicie o servidor:<br />
-      <code>npx serve out</code>
-    </div>
-
-    <div class="step">
-      <strong>4.</strong> Abra no navegador:<br />
-      <code>http://localhost:3000</code>
-    </div>
-
-    <hr />
-
-    <p style="font-size:0.875rem;">
-      Após o build, abra direto:
-      <a href="out/index.html" class="btn">Abrir App</a>
-    </p>
+    <p>Redirecionando para o aplicativo...</p>
+    <div class="spinner"></div>
   </div>
+  <script>location.href = "/tarefasdiarias/";</script>
 </body>
 </html>
