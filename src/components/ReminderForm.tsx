@@ -69,9 +69,9 @@ export default function ReminderForm({ initial, onSubmit, onCancel }: ReminderFo
               onClick={() => setPriority(p.value)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition cursor-pointer ${
                 priority === p.value
-                  ? p.value === "urgente" ? "bg-red-600 text-white"
-                    : p.value === "normal" ? "bg-blue-600 text-white"
-                    : "bg-gray-600 text-white"
+                   ? p.value === "urgente" ? "bg-red-600 text-white dark:text-black"
+                    : p.value === "normal" ? "bg-blue-600 text-white dark:text-black"
+                    : "bg-gray-600 text-white dark:text-black"
                   : p.color + " hover:opacity-80"
               }`}
             >
@@ -133,7 +133,7 @@ export default function ReminderForm({ initial, onSubmit, onCancel }: ReminderFo
         <button
           type="submit"
           disabled={saving || !text.trim()}
-          className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-medium py-2 rounded-lg transition cursor-pointer disabled:cursor-not-allowed"
+          className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white dark:text-black font-medium py-2 rounded-lg transition cursor-pointer disabled:cursor-not-allowed"
         >
           {saving ? "Salvando..." : "Salvar"}
         </button>

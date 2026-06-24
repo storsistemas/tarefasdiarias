@@ -39,52 +39,52 @@
 }
 
 .dark {
-  --color-surface: #1E1E1E;
-  --color-surface-hover: #252525;
-  --color-input: #2A2A2A;
+  --color-surface: #0A0A0A;
+  --color-surface-hover: #141414;
+  --color-input: #0A0A0A;
 
-  --color-gray-50: #1a1a1a;
-  --color-gray-100: #252525;
-  --color-gray-200: #333333;
-  --color-gray-300: #444444;
-  --color-gray-400: #888888;
-  --color-gray-500: #AAAAAA;
-  --color-gray-600: #CCCCCC;
-  --color-gray-700: #DDDDDD;
-  --color-gray-800: #EEEEEE;
-  --color-gray-900: #F0F0F0;
+  --color-gray-50: #050505;
+  --color-gray-100: #0A0A0A;
+  --color-gray-200: #141414;
+  --color-gray-300: #2A2A2A;
+  --color-gray-400: #666666;
+  --color-gray-500: #999999;
+  --color-gray-600: #BBBBBB;
+  --color-gray-700: #CCCCCC;
+  --color-gray-800: #DDDDDD;
+  --color-gray-900: #E1E1E1;
 
-  --color-blue-50: rgba(7, 155, 84, 0.15);
-  --color-blue-100: rgba(7, 155, 84, 0.25);
-  --color-blue-200: rgba(7, 155, 84, 0.35);
-  --color-blue-300: rgba(7, 155, 84, 0.45);
-  --color-blue-400: rgba(7, 155, 84, 0.6);
+  --color-blue-50: rgba(0, 204, 102, 0.12);
+  --color-blue-100: rgba(0, 204, 102, 0.2);
+  --color-blue-200: rgba(0, 204, 102, 0.3);
+  --color-blue-300: rgba(0, 204, 102, 0.4);
+  --color-blue-400: rgba(0, 204, 102, 0.55);
   --color-blue-500: #00CC66;
   --color-blue-600: #00CC66;
   --color-blue-700: #00E07A;
   --color-blue-800: #00F08A;
   --color-blue-900: #00FF99;
 
-  --color-green-50: rgba(34, 197, 94, 0.15);
-  --color-green-200: rgba(34, 197, 94, 0.35);
+  --color-green-50: rgba(74, 222, 128, 0.12);
+  --color-green-200: rgba(74, 222, 128, 0.3);
   --color-green-500: #4ade80;
   --color-green-600: #4ade80;
 
-  --color-red-50: rgba(239, 68, 68, 0.15);
-  --color-red-100: rgba(239, 68, 68, 0.25);
-  --color-red-200: rgba(239, 68, 68, 0.35);
+  --color-red-50: rgba(248, 113, 113, 0.12);
+  --color-red-100: rgba(248, 113, 113, 0.2);
+  --color-red-200: rgba(248, 113, 113, 0.3);
   --color-red-500: #f87171;
   --color-red-600: #f87171;
   --color-red-700: #fca5a5;
 
-  --color-amber-50: rgba(245, 158, 11, 0.15);
-  --color-amber-100: rgba(245, 158, 11, 0.25);
-  --color-amber-200: rgba(245, 158, 11, 0.35);
+  --color-amber-50: rgba(251, 191, 36, 0.12);
+  --color-amber-100: rgba(251, 191, 36, 0.2);
+  --color-amber-200: rgba(251, 191, 36, 0.3);
   --color-amber-400: #fbbf24;
   --color-amber-500: #fbbf24;
   --color-amber-600: #fcd34d;
 
-  --color-indigo-100: #1E1E1E;
+  --color-indigo-100: #0A0A0A;
 }
 
 @theme inline {
@@ -146,5 +146,5 @@ body {
 }
 
 .dark body {
-  background: #121212;
+  background: #000000;
 }

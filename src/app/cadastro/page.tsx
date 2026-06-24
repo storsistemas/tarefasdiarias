@@ -83,7 +83,7 @@ export default function CadastroPage() {
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition cursor-pointer"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white dark:text-black font-medium py-2.5 rounded-lg transition cursor-pointer"
           >
             Cadastrar
           </button>

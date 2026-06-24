@@ -120,7 +120,7 @@ export default function TaskList({ selectedDate }: TaskListProps) {
         </h2>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition cursor-pointer"
+          className="bg-blue-600 hover:bg-blue-700 text-white dark:text-black text-sm font-medium px-4 py-2 rounded-lg transition cursor-pointer"
         >
           {showForm ? "Cancelar" : "+ Nova Atividade"}
         </button>

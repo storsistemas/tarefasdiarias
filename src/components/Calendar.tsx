@@ -88,7 +88,7 @@ export default function Calendar({ selectedDate, onSelect }: CalendarProps) {
               onClick={() => onSelect(dateStr)}
               className={`text-center text-sm py-1.5 rounded-lg transition cursor-pointer ${
                 isSelected
-                  ? "bg-blue-600 text-white font-medium"
+                  ? "bg-blue-600 text-white dark:text-black font-medium"
                   : isToday
                   ? "bg-blue-50 text-blue-600 font-medium"
                   : "text-gray-700 hover:bg-surface-hover"

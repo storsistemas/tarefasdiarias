@@ -84,7 +84,7 @@ export default function TaskForm({ initial, onSubmit, onCancel }: TaskFormProps)
         <button
           type="submit"
           disabled={saving || daysOfWeek.length === 0}
-          className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-medium py-2 rounded-lg transition cursor-pointer disabled:cursor-not-allowed"
+          className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white dark:text-black font-medium py-2 rounded-lg transition cursor-pointer disabled:cursor-not-allowed"
         >
           {saving ? "Salvando..." : "Salvar"}
         </button>

@@ -33,7 +33,7 @@ export default function DayPicker({ selected, onChange }: DayPickerProps) {
           onClick={() => toggle(day.value)}
           className={`w-11 h-11 rounded-full text-sm font-medium transition cursor-pointer ${
             selected.includes(day.value)
-              ? "bg-blue-600 text-white shadow-sm"
+              ? "bg-blue-600 text-white dark:text-black shadow-sm"
               : "bg-gray-100 text-gray-600 hover:bg-gray-200"
           }`}
         >
