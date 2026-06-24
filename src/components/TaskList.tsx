@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
+import { collection, query, where, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthProvider";
 import TaskItem from "./TaskItem";
 import TaskForm from "./TaskForm";
 import type { Task, TaskFormData } from "@/types";
-import { addDoc, serverTimestamp } from "firebase/firestore";
 
 interface TaskListProps {
   selectedDate: string;
@@ -18,35 +17,46 @@ export default function TaskList({ selectedDate }: TaskListProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const dayOfWeek = new Date(selectedDate).getDay();
 
   useEffect(() => {
     if (!user) return;
+    setLoading(true);
+    setError("");
     const q = query(
       collection(db, "tasks"),
-      where("userId", "==", user.uid),
-      orderBy("createdAt", "desc")
+      where("userId", "==", user.uid)
     );
-    const unsub = onSnapshot(q, (snap) => {
-      const list: Task[] = [];
-      snap.forEach((d) => {
-        const data = d.data();
-        list.push({
-          id: d.id,
-          userId: data.userId,
-          description: data.description,
-          reason: data.reason ?? "",
-          time: data.time,
-          daysOfWeek: data.daysOfWeek ?? [],
-          active: data.active ?? true,
-          createdAt: data.createdAt?.toDate() ?? new Date(),
-          completions: data.completions ?? {},
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        const list: Task[] = [];
+        snap.forEach((d) => {
+          const data = d.data();
+          list.push({
+            id: d.id,
+            userId: data.userId,
+            description: data.description,
+            reason: data.reason ?? "",
+            time: data.time,
+            daysOfWeek: data.daysOfWeek ?? [],
+            active: data.active ?? true,
+            createdAt: data.createdAt?.toDate() ?? new Date(),
+            completions: data.completions ?? {},
+          });
         });
-      });
-      setTasks(list);
-      setLoading(false);
-    });
+        list.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        setTasks(list);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Firestore error:", err);
+        setError("Erro ao carregar atividades: " + err.message);
+        setLoading(false);
+      }
+    );
     return () => unsub();
   }, [user]);
 
@@ -80,8 +90,20 @@ export default function TaskList({ selectedDate }: TaskListProps) {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
+      <div className="flex flex-col items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+        <p className="text-sm text-gray-400 mt-3">Carregando atividades...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+        <p className="text-red-600 font-medium">{error}</p>
+        <p className="text-sm text-red-500 mt-2">
+          Verifique se o Firestore está ativo no Firebase Console e as regras de segurança permitem acesso.
+        </p>
       </div>
     );
   }
