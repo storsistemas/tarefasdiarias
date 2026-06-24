@@ -33,6 +33,7 @@ export default function ReminderList() {
             remindValue: data.remindValue ?? 0,
             remindUnit: data.remindUnit ?? "minutos",
             resolved: data.resolved ?? false,
+            active: data.active ?? true,
             createdAt: data.createdAt?.toDate() ?? new Date(),
           });
         });
@@ -59,6 +60,7 @@ export default function ReminderList() {
       remindValue: data.remindValue,
       remindUnit: data.remindUnit,
       resolved: false,
+      active: true,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });

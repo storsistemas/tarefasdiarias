@@ -30,6 +30,7 @@ export interface Reminder {
   remindValue: number;
   remindUnit: RemindUnit;
   resolved: boolean;
+  active: boolean;
   createdAt: Date;
 }
 

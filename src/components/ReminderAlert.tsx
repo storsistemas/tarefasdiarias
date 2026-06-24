@@ -42,6 +42,7 @@ export default function ReminderAlert() {
           remindValue: data.remindValue ?? 0,
           remindUnit: data.remindUnit ?? "minutos",
           resolved: data.resolved ?? false,
+          active: data.active ?? true,
           createdAt: data.createdAt?.toDate() ?? new Date(),
         });
       });
@@ -53,7 +54,7 @@ export default function ReminderAlert() {
   const checkAlerts = useCallback(() => {
     const now = Date.now();
     const due = reminders.filter((r) => {
-      if (r.resolved || alertedIds.has(r.id!)) return false;
+      if (!r.active || r.resolved || alertedIds.has(r.id!)) return false;
       const alertAt = getAlertTime(r).getTime();
       return alertAt <= now;
     });
