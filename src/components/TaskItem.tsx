@@ -66,6 +66,8 @@ export default function TaskItem({ task, selectedDate, onUpdate }: TaskItemProps
             reason: task.reason,
             time: task.time,
             daysOfWeek: task.daysOfWeek,
+            intervalDays: task.intervalDays,
+            startDate: task.startDate,
           }}
           onSubmit={handleEdit}
           onCancel={() => setEditing(false)}
@@ -101,9 +103,15 @@ export default function TaskItem({ task, selectedDate, onUpdate }: TaskItemProps
             <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
               {task.time}
             </span>
-            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
-              {task.daysOfWeek.map((d) => DAY_LABELS[d]).join(", ")}
-            </span>
+            {task.intervalDays ? (
+              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                A cada {task.intervalDays} dias
+              </span>
+            ) : (
+              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                {task.daysOfWeek.map((d) => DAY_LABELS[d]).join(", ")}
+              </span>
+            )}
           </div>
         </div>
         <div className="flex gap-1 shrink-0">

@@ -5,6 +5,8 @@ export interface Task {
   reason: string;
   time: string;
   daysOfWeek: number[];
+  intervalDays: number | null;
+  startDate: string;
   active: boolean;
   createdAt: Date;
   completions: Record<string, boolean>;
@@ -15,6 +17,8 @@ export interface TaskFormData {
   reason: string;
   time: string;
   daysOfWeek: number[];
+  intervalDays: number | null;
+  startDate: string;
 }
 
 export type Priority = "baixo" | "normal" | "urgente";

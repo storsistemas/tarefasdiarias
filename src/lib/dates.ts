@@ -17,3 +17,11 @@ export function formatDate(date: Date): string {
   const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 }
+
+export function daysBetween(a: string, b: string): number {
+  const [ay, am, ad] = a.split("-").map(Number);
+  const [by, bm, bd] = b.split("-").map(Number);
+  const dateA = new Date(ay, am - 1, ad);
+  const dateB = new Date(by, bm - 1, bd);
+  return Math.round((dateA.getTime() - dateB.getTime()) / (1000 * 60 * 60 * 24));
+}

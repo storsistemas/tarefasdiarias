@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { collection, query, where, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthProvider";
-import { getDayOfWeek } from "@/lib/dates";
+import { getDayOfWeek, daysBetween } from "@/lib/dates";
 import TaskItem from "./TaskItem";
 import TaskForm from "./TaskForm";
 import type { Task, TaskFormData } from "@/types";
@@ -43,6 +43,8 @@ export default function TaskList({ selectedDate }: TaskListProps) {
             reason: data.reason ?? "",
             time: data.time,
             daysOfWeek: data.daysOfWeek ?? [],
+            intervalDays: data.intervalDays ?? null,
+            startDate: data.startDate ?? "",
             active: data.active ?? true,
             createdAt: data.createdAt?.toDate() ?? new Date(),
             completions: data.completions ?? {},
@@ -63,6 +65,10 @@ export default function TaskList({ selectedDate }: TaskListProps) {
 
   const filteredTasks = tasks.filter((t) => {
     if (!t.active) return true;
+    if (t.intervalDays && t.startDate) {
+      const diff = daysBetween(selectedDate, t.startDate);
+      return diff >= 0 && diff % t.intervalDays === 0;
+    }
     return t.daysOfWeek.includes(dayOfWeek);
   });
 
@@ -81,6 +87,8 @@ export default function TaskList({ selectedDate }: TaskListProps) {
       reason: data.reason,
       time: data.time,
       daysOfWeek: data.daysOfWeek,
+      intervalDays: data.intervalDays,
+      startDate: data.startDate,
       active: true,
       completions: {},
       createdAt: serverTimestamp(),
