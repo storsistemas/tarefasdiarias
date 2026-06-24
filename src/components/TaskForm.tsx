@@ -40,7 +40,7 @@ export default function TaskForm({ initial, onSubmit, onCancel }: TaskFormProps)
           type="text"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-input"
           placeholder="O que precisa ser feito?"
           required
         />
@@ -67,7 +67,7 @@ export default function TaskForm({ initial, onSubmit, onCancel }: TaskFormProps)
           type="time"
           value={time}
           onChange={(e) => setTime(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-input"
           required
         />
       </div>

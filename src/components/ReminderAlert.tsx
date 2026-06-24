@@ -91,7 +91,7 @@ export default function ReminderAlert() {
           <div
             key={r.id}
             className={`rounded-xl shadow-lg p-4 text-white ${
-              isUrgent ? "bg-red-600" : r.priority === "normal" ? "bg-blue-600" : "bg-gray-600"
+              isUrgent ? "bg-red-600 dark:bg-red-950" : r.priority === "normal" ? "bg-blue-600 dark:bg-teal-950" : "bg-gray-600 dark:bg-gray-800"
             }`}
           >
             <div className="flex items-start gap-3">

@@ -53,7 +53,7 @@ export default function ReminderForm({ initial, onSubmit, onCancel }: ReminderFo
           type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-input"
           placeholder="Digite seu lembrete..."
           required
         />
@@ -89,7 +89,7 @@ export default function ReminderForm({ initial, onSubmit, onCancel }: ReminderFo
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-input"
             required
           />
         </div>
@@ -100,7 +100,7 @@ export default function ReminderForm({ initial, onSubmit, onCancel }: ReminderFo
             type="time"
             value={time}
             onChange={(e) => setTime(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-input"
             required
           />
         </div>
@@ -115,12 +115,12 @@ export default function ReminderForm({ initial, onSubmit, onCancel }: ReminderFo
             max={365}
             value={remindValue}
             onChange={(e) => setRemindValue(Math.max(1, parseInt(e.target.value) || 1))}
-            className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-center"
+            className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-center bg-input"
           />
           <select
             value={remindUnit}
             onChange={(e) => setRemindUnit(e.target.value as RemindUnit)}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-input"
           >
             {REMIND_UNITS.map((u) => (
               <option key={u.value} value={u.value}>{u.label}</option>

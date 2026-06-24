@@ -70,7 +70,7 @@ export default function ReminderList() {
   const unresolved = reminders.filter((r) => !r.resolved);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+    <div className="bg-surface rounded-xl shadow-sm border border-gray-200">
       <div className="flex items-center justify-between p-4 border-b border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900">
           Lembretes

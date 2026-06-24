@@ -62,7 +62,7 @@ export default function ReminderItem({ reminder, onUpdate }: ReminderItemProps) 
 
   if (editing) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-3">
+      <div className="bg-surface rounded-lg border border-gray-200 p-3">
         <ReminderForm
           initial={{
             text: reminder.text,
@@ -88,7 +88,7 @@ export default function ReminderItem({ reminder, onUpdate }: ReminderItemProps) 
           ? "bg-gray-50 border-gray-200 opacity-50"
           : reminder.priority === "urgente"
           ? "bg-red-50 border-red-200"
-          : "bg-white border-gray-200"
+          : "bg-surface border-gray-200"
       }`}
     >
       <input
@@ -128,7 +128,7 @@ export default function ReminderItem({ reminder, onUpdate }: ReminderItemProps) 
         </button>
         <button
           onClick={handleToggleActive}
-          className="p-1 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-lg transition cursor-pointer"
+          className="p-1 text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-500/10 rounded-lg transition cursor-pointer"
           title={reminder.active ? "Inativar" : "Ativar"}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
