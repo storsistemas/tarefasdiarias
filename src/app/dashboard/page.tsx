@@ -6,6 +6,8 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import AuthProvider, { useAuth } from "@/components/AuthProvider";
 import TaskList from "@/components/TaskList";
+import ReminderList from "@/components/ReminderList";
+import ReminderAlert from "@/components/ReminderAlert";
 import Calendar from "@/components/Calendar";
 import { formatDate } from "@/lib/dates";
 
@@ -41,6 +43,7 @@ function DashboardContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <ReminderAlert />
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -75,6 +78,7 @@ function DashboardContent() {
                 {dateObj.getDate()} de {monthNames[dateObj.getMonth()]} de {dateObj.getFullYear()}
               </p>
             </div>
+            <ReminderList />
           </div>
           <div>
             <TaskList selectedDate={selectedDate} />
