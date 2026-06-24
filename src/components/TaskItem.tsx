@@ -18,7 +18,6 @@ export default function TaskItem({ task, selectedDate, onUpdate }: TaskItemProps
   const [editing, setEditing] = useState(false);
   const today = selectedDate;
   const isCompleted = task.completions?.[today] === true;
-  const isTodayOrPast = today <= new Date().toISOString().slice(0, 10);
 
   async function toggleComplete() {
     const ref = doc(db, "tasks", task.id!);
@@ -82,14 +81,12 @@ export default function TaskItem({ task, selectedDate, onUpdate }: TaskItemProps
       }`}
     >
       <div className="flex items-start gap-3">
-        {isTodayOrPast && (
-          <input
-            type="checkbox"
-            checked={isCompleted}
-            onChange={toggleComplete}
-            className="mt-1 h-5 w-5 rounded border-gray-300 text-green-600 focus:ring-green-500 cursor-pointer shrink-0"
-          />
-        )}
+        <input
+          type="checkbox"
+          checked={isCompleted}
+          onChange={toggleComplete}
+          className="mt-1 h-5 w-5 rounded border-gray-300 text-green-600 focus:ring-green-500 cursor-pointer shrink-0"
+        />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <h3 className={`font-medium ${isCompleted ? "line-through text-gray-400" : "text-gray-900"}`}>
