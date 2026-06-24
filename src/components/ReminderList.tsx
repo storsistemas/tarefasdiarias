@@ -82,7 +82,7 @@ export default function ReminderList() {
           onClick={() => setShowForm(!showForm)}
           className="text-sm bg-amber-500 hover:bg-amber-600 text-white font-medium px-3 py-1.5 rounded-lg transition cursor-pointer"
         >
-          {showForm ? "Cancelar" : "+ Lembrete"}
+          {showForm ? "Cancelar" : "+ Adicionar"}
         </button>
       </div>
 
