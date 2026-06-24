@@ -18,6 +18,7 @@ export interface TaskFormData {
 }
 
 export type Priority = "baixo" | "normal" | "urgente";
+export type RemindUnit = "minutos" | "horas" | "dias";
 
 export interface Reminder {
   id?: string;
@@ -25,6 +26,9 @@ export interface Reminder {
   text: string;
   priority: Priority;
   date: string;
+  time: string;
+  remindValue: number;
+  remindUnit: RemindUnit;
   resolved: boolean;
   createdAt: Date;
 }
@@ -33,4 +37,7 @@ export interface ReminderFormData {
   text: string;
   priority: Priority;
   date: string;
+  time: string;
+  remindValue: number;
+  remindUnit: RemindUnit;
 }

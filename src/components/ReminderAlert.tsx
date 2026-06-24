@@ -1,16 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { collection, query, where, onSnapshot, doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthProvider";
-import { todayStr } from "@/lib/dates";
 import type { Reminder } from "@/types";
+
+const UNIT_MS: Record<string, number> = {
+  minutos: 60 * 1000,
+  horas: 60 * 60 * 1000,
+  dias: 24 * 60 * 60 * 1000,
+};
+
+function getAlertTime(r: Reminder): Date {
+  const [h, m] = r.time.split(":").map(Number);
+  const event = new Date(r.date + "T" + r.time);
+  const offset = r.remindValue * (UNIT_MS[r.remindUnit] ?? 0);
+  return new Date(event.getTime() - offset);
+}
 
 export default function ReminderAlert() {
   const { user } = useAuth();
-  const [urgent, setUrgent] = useState<Reminder[]>([]);
-  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [alertedIds, setAlertedIds] = useState<Set<string>>(new Set());
+  const [activeAlerts, setActiveAlerts] = useState<Reminder[]>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -25,54 +38,93 @@ export default function ReminderAlert() {
           text: data.text,
           priority: data.priority ?? "normal",
           date: data.date,
+          time: data.time ?? "08:00",
+          remindValue: data.remindValue ?? 0,
+          remindUnit: data.remindUnit ?? "minutos",
           resolved: data.resolved ?? false,
           createdAt: data.createdAt?.toDate() ?? new Date(),
         });
       });
-      const today = todayStr();
-      const active = list.filter(
-        (r) => !r.resolved && r.date === today && r.priority === "urgente" && !dismissed.has(r.id!)
-      );
-      setUrgent(active);
+      setReminders(list);
     });
     return () => unsub();
-  }, [user, dismissed]);
+  }, [user]);
 
-  if (urgent.length === 0) return null;
+  const checkAlerts = useCallback(() => {
+    const now = Date.now();
+    const due = reminders.filter((r) => {
+      if (r.resolved || alertedIds.has(r.id!)) return false;
+      const alertAt = getAlertTime(r).getTime();
+      return alertAt <= now;
+    });
+    setActiveAlerts(due);
+  }, [reminders, alertedIds]);
+
+  useEffect(() => {
+    checkAlerts();
+    const interval = setInterval(checkAlerts, 30_000);
+    return () => clearInterval(interval);
+  }, [checkAlerts]);
+
+  async function dismiss(id: string) {
+    setAlertedIds(new Set(alertedIds).add(id));
+    setActiveAlerts((prev) => prev.filter((a) => a.id !== id));
+  }
+
+  async function resolveAndDismiss(id: string) {
+    setAlertedIds(new Set(alertedIds).add(id));
+    setActiveAlerts((prev) => prev.filter((a) => a.id !== id));
+    await updateDoc(doc(db, "reminders", id), {
+      resolved: true,
+      updatedAt: serverTimestamp(),
+    });
+  }
+
+  if (activeAlerts.length === 0) return null;
 
   return (
     <div className="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm">
-      {urgent.map((r) => (
-        <div
-          key={r.id}
-          className="bg-red-600 text-white rounded-xl shadow-lg p-4 animate-in slide-in-from-right duration-300"
-        >
-          <div className="flex items-start gap-3">
-            <svg className="w-6 h-6 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-            <div className="flex-1">
-              <p className="font-medium text-sm">Lembrete Urgente!</p>
-              <p className="text-sm text-red-100 mt-1">{r.text}</p>
-            </div>
-            <button
-              onClick={async () => {
-                setDismissed(new Set(dismissed).add(r.id!));
-                await updateDoc(doc(db, "reminders", r.id!), {
-                  resolved: true,
-                  updatedAt: serverTimestamp(),
-                });
-              }}
-              className="text-white/80 hover:text-white p-1 cursor-pointer"
-              title="Resolver"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+      {activeAlerts.map((r) => {
+        const isUrgent = r.priority === "urgente";
+        return (
+          <div
+            key={r.id}
+            className={`rounded-xl shadow-lg p-4 text-white ${
+              isUrgent ? "bg-red-600" : r.priority === "normal" ? "bg-blue-600" : "bg-gray-600"
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              <svg className="w-6 h-6 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
-            </button>
+              <div className="flex-1">
+                <p className="font-medium text-sm">{isUrgent ? "Lembrete Urgente!" : "Lembrete"}</p>
+                <p className={`text-sm mt-1 ${isUrgent ? "text-red-100" : "text-white/90"}`}>{r.text}</p>
+              </div>
+              <div className="flex gap-1">
+                <button
+                  onClick={() => dismiss(r.id!)}
+                  className="text-white/70 hover:text-white p-1 cursor-pointer"
+                  title="Fechar"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => resolveAndDismiss(r.id!)}
+                  className="text-white/70 hover:text-white p-1 cursor-pointer"
+                  title="Marcar resolvido"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

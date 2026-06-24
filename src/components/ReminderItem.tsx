@@ -33,6 +33,10 @@ export default function ReminderItem({ reminder, onUpdate }: ReminderItemProps) 
 
   const pStyle = PRIORITY_STYLES[reminder.priority] ?? PRIORITY_STYLES.normal;
 
+  function remindLabel(): string {
+    return `${reminder.remindValue} ${reminder.remindUnit} antes`;
+  }
+
   return (
     <div
       className={`flex items-start gap-3 p-3 rounded-lg border transition ${
@@ -53,9 +57,15 @@ export default function ReminderItem({ reminder, onUpdate }: ReminderItemProps) 
         <p className={`text-sm ${reminder.resolved ? "line-through text-gray-400" : "text-gray-900"}`}>
           {reminder.text}
         </p>
-        <div className="flex items-center gap-2 mt-1">
+        <div className="flex flex-wrap items-center gap-1.5 mt-1">
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${pStyle.class}`}>
             {pStyle.label}
+          </span>
+          <span className="text-xs text-gray-400">
+            {reminder.date} às {reminder.time}
+          </span>
+          <span className="text-xs text-amber-500 font-medium">
+            ⏰ {remindLabel()}
           </span>
         </div>
       </div>
