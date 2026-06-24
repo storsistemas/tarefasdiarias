@@ -95,10 +95,10 @@ export default function ReminderList() {
       <div className="p-4 space-y-2 max-h-72 overflow-y-auto">
         {loading ? (
           <div className="flex justify-center py-4">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-500" />
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600" />
           </div>
         ) : reminders.length === 0 ? (
-          <p className="text-center text-gray-400 text-sm py-4">Nenhum lembrete</p>
+          <p className="text-center text-gray-500 text-sm py-4">Nenhum lembrete</p>
         ) : (
           reminders.map((r) => (
             <ReminderItem key={r.id} reminder={r} onUpdate={() => {}} />
