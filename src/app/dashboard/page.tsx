@@ -7,10 +7,7 @@ import { auth } from "@/lib/firebase";
 import AuthProvider, { useAuth } from "@/components/AuthProvider";
 import TaskList from "@/components/TaskList";
 import Calendar from "@/components/Calendar";
-
-function formatDate(date: Date): string {
-  return date.toISOString().slice(0, 10);
-}
+import { formatDate } from "@/lib/dates";
 
 function DashboardContent() {
   const { user, loading } = useAuth();

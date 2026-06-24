@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { collection, query, where, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthProvider";
+import { getDayOfWeek } from "@/lib/dates";
 import TaskItem from "./TaskItem";
 import TaskForm from "./TaskForm";
 import type { Task, TaskFormData } from "@/types";
@@ -19,7 +20,7 @@ export default function TaskList({ selectedDate }: TaskListProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const dayOfWeek = new Date(selectedDate).getDay();
+  const dayOfWeek = getDayOfWeek(selectedDate);
 
   useEffect(() => {
     if (!user) return;

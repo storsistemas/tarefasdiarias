@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { todayStr } from "@/lib/dates";
 
 const MONTHS = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -21,7 +22,7 @@ export default function Calendar({ selectedDate, onSelect }: CalendarProps) {
 
   const firstDay = new Date(viewYear, viewMonth, 1).getDay();
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-  const todayStr = today.toISOString().slice(0, 10);
+  const todayDateStr = todayStr();
 
   function prevMonth() {
     if (viewMonth === 0) {
@@ -79,7 +80,7 @@ export default function Calendar({ selectedDate, onSelect }: CalendarProps) {
           if (d === null) return <div key={`empty-${i}`} />;
           const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
           const isSelected = dateStr === selectedDate;
-          const isToday = dateStr === todayStr;
+          const isToday = dateStr === todayDateStr;
 
           return (
             <button
