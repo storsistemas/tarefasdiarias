@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "node index.js",
+    "dev": "next dev",
     "build": "next build",
-    "start": "NODE_ENV=production node index.js",
+    "start": "npx serve out",
     "lint": "eslint"
   },
   "dependencies": {

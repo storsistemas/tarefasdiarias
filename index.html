@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tarefas Diárias</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #111827;
+    }
+    .container { text-align: center; padding: 2rem; max-width: 500px; }
+    h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }
+    p { color: #6b7280; margin-bottom: 1rem; }
+    code {
+      background: #e5e7eb;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+    .btn {
+      display: inline-block;
+      background: #2563eb;
+      color: #fff;
+      padding: 0.75rem 2rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 500;
+      margin-top: 1rem;
+    }
+    .btn:hover { background: #1d4ed8; }
+    hr { margin: 1.5rem 0; border: none; border-top: 1px solid #e5e7eb; }
+    .step { text-align: left; margin: 0.75rem 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Tarefas Diárias</h1>
+    <p>Aplicação de gerenciamento de atividades recorrentes</p>
+
+    <hr />
+
+    <h3 style="margin-bottom:1rem;">Como executar:</h3>
+
+    <div class="step">
+      <strong>1.</strong> Instale as dependências:<br />
+      <code>npm install</code>
+    </div>
+
+    <div class="step">
+      <strong>2.</strong> Gere os arquivos estáticos:<br />
+      <code>npm run build</code>
+    </div>
+
+    <div class="step">
+      <strong>3.</strong> Inicie o servidor:<br />
+      <code>npx serve out</code>
+    </div>
+
+    <div class="step">
+      <strong>4.</strong> Abra no navegador:<br />
+      <code>http://localhost:3000</code>
+    </div>
+
+    <hr />
+
+    <p style="font-size:0.875rem;">
+      Após o build, abra direto:
+      <a href="out/index.html" class="btn">Abrir App</a>
+    </p>
+  </div>
+</body>
+</html>
