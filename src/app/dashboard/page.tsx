@@ -7,6 +7,7 @@ import { auth } from "@/lib/firebase";
 import AuthProvider, { useAuth } from "@/components/AuthProvider";
 import { useTheme } from "@/components/ThemeProvider";
 import TaskList from "@/components/TaskList";
+import TaskAlertWatcher from "@/components/TaskAlertWatcher";
 import ReminderList from "@/components/ReminderList";
 import ReminderAlert from "@/components/ReminderAlert";
 import Calendar from "@/components/Calendar";
@@ -45,6 +46,7 @@ function DashboardContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-950 dark:to-gray-900">
+      <TaskAlertWatcher />
       <ReminderAlert />
       <header className="bg-surface shadow-sm border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">

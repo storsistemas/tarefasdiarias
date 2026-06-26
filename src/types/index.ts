@@ -8,6 +8,7 @@ export interface Task {
   intervalDays: number | null;
   startDate: string;
   active: boolean;
+  alertEnabled: boolean;
   createdAt: Date;
   completions: Record<string, boolean>;
 }

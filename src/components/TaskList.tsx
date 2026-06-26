@@ -46,6 +46,7 @@ export default function TaskList({ selectedDate }: TaskListProps) {
             intervalDays: data.intervalDays ?? null,
             startDate: data.startDate ?? "",
             active: data.active ?? true,
+            alertEnabled: data.alertEnabled ?? false,
             createdAt: data.createdAt?.toDate() ?? new Date(),
             completions: data.completions ?? {},
           });
@@ -90,6 +91,7 @@ export default function TaskList({ selectedDate }: TaskListProps) {
       intervalDays: data.intervalDays,
       startDate: data.startDate,
       active: true,
+      alertEnabled: false,
       completions: {},
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
