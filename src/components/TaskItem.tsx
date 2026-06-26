@@ -137,8 +137,8 @@ export default function TaskItem({ task, selectedDate, onUpdate }: TaskItemProps
             onClick={handleToggleAlert}
             className={`p-1.5 rounded-lg transition cursor-pointer ${
               task.alertEnabled
-                ? "text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10"
-                : "text-gray-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10"
+                ? "text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-500/10"
+                : "text-gray-400 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-500/10"
             }`}
             title={task.alertEnabled ? "Desativar alerta" : "Ativar alerta"}
           >
