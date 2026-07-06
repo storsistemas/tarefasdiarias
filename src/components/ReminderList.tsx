@@ -13,6 +13,7 @@ export default function ReminderList() {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<"pending" | "done">("pending");
 
   useEffect(() => {
     if (!user) return;
@@ -67,22 +68,48 @@ export default function ReminderList() {
     setShowForm(false);
   }
 
-  const unresolved = reminders.filter((r) => !r.resolved);
+  const pending = reminders.filter((r) => !r.resolved);
+  const done = reminders.filter((r) => r.resolved);
+  const displayed = tab === "pending" ? pending : done;
 
   return (
     <div className="bg-surface rounded-xl shadow-sm border border-gray-200">
       <div className="flex items-center justify-between p-4 border-b border-gray-100">
-        <h2 className="text-lg font-semibold text-gray-900">
-          Lembretes
-          {unresolved.length > 0 && (
-            <span className="ml-2 text-sm font-normal text-gray-500">({unresolved.length} pendentes)</span>
-          )}
-        </h2>
+        <h2 className="text-lg font-semibold text-gray-900">Lembretes</h2>
         <button
           onClick={() => setShowForm(!showForm)}
           className="text-sm bg-blue-600 hover:bg-blue-700 text-white dark:text-black font-medium px-3 py-1.5 rounded-lg transition cursor-pointer"
         >
           {showForm ? "Cancelar" : "+ Adicionar"}
+        </button>
+      </div>
+
+      <div className="flex border-b border-gray-100">
+        <button
+          onClick={() => setTab("pending")}
+          className={`flex-1 text-sm font-medium py-2.5 text-center transition cursor-pointer ${
+            tab === "pending"
+              ? "text-blue-600 border-b-2 border-blue-600"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          Pendentes
+          {pending.length > 0 && (
+            <span className="ml-1.5 text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">{pending.length}</span>
+          )}
+        </button>
+        <button
+          onClick={() => setTab("done")}
+          className={`flex-1 text-sm font-medium py-2.5 text-center transition cursor-pointer ${
+            tab === "done"
+              ? "text-green-600 border-b-2 border-green-600"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          Concluídos
+          {done.length > 0 && (
+            <span className="ml-1.5 text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">{done.length}</span>
+          )}
         </button>
       </div>
 
@@ -97,10 +124,12 @@ export default function ReminderList() {
           <div className="flex justify-center py-4">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600" />
           </div>
-        ) : reminders.length === 0 ? (
-          <p className="text-center text-gray-500 text-sm py-4">Nenhum lembrete</p>
+        ) : displayed.length === 0 ? (
+          <p className="text-center text-gray-500 text-sm py-4">
+            {tab === "pending" ? "Nenhum lembrete pendente" : "Nenhum lembrete concluído"}
+          </p>
         ) : (
-          reminders.map((r) => (
+          displayed.map((r) => (
             <ReminderItem key={r.id} reminder={r} onUpdate={() => {}} />
           ))
         )}
