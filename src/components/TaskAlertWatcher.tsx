@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { useAuth } from "./AuthProvider";
-import { todayStr, getDayOfWeek, daysBetween } from "@/lib/dates";
+import { useUserTasks } from "@/lib/useTasks";
+import { todayStr } from "@/lib/dates";
+import { occursOn } from "@/lib/recurrence";
 import type { Task } from "@/types";
 
 interface AlertTask {
@@ -61,50 +60,17 @@ function playChime() {
 }
 
 export default function TaskAlertWatcher() {
-  const { user } = useAuth();
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const { tasks } = useUserTasks();
   const [activeAlerts, setActiveAlerts] = useState<AlertTask[]>([]);
   const alertedRef = useRef<Set<string>>(new Set());
 
-  useEffect(() => {
-    if (!user) return;
-    const q = query(collection(db, "tasks"), where("userId", "==", user.uid));
-    const unsub = onSnapshot(q, (snap) => {
-      const list: Task[] = [];
-      snap.forEach((d) => {
-        const data = d.data();
-        list.push({
-          id: d.id,
-          userId: data.userId,
-          description: data.description,
-          reason: data.reason ?? "",
-          time: data.time,
-          daysOfWeek: data.daysOfWeek ?? [],
-          intervalDays: data.intervalDays ?? null,
-          startDate: data.startDate ?? "",
-          active: data.active ?? true,
-          alertEnabled: data.alertEnabled ?? false,
-          createdAt: data.createdAt?.toDate() ?? new Date(),
-          completions: data.completions ?? {},
-        });
-      });
-      setTasks(list);
-    });
-    return () => unsub();
-  }, [user]);
-
   const today = todayStr();
-  const dayOfWeek = getDayOfWeek(today);
 
   const shouldAlertToday = useCallback((task: Task) => {
     if (!task.active || !task.alertEnabled) return false;
     if (task.completions?.[today] === true) return false;
-    if (task.intervalDays && task.startDate) {
-      const diff = daysBetween(today, task.startDate);
-      return diff >= 0 && diff % task.intervalDays === 0;
-    }
-    return task.daysOfWeek.includes(dayOfWeek);
-  }, [today, dayOfWeek]);
+    return occursOn(task, today);
+  }, [today]);
 
   const checkAlerts = useCallback(() => {
     const now = new Date();

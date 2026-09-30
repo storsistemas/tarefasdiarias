@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { collection, query, where, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthProvider";
-import { getDayOfWeek, daysBetween } from "@/lib/dates";
+import { toTask } from "@/lib/mappers";
+import { occursOn } from "@/lib/recurrence";
 import TaskItem from "./TaskItem";
 import TaskForm from "./TaskForm";
 import type { Task, TaskFormData } from "@/types";
@@ -20,8 +21,6 @@ export default function TaskList({ selectedDate }: TaskListProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const dayOfWeek = getDayOfWeek(selectedDate);
-
   useEffect(() => {
     if (!user) return;
     setLoading(true);
@@ -34,23 +33,7 @@ export default function TaskList({ selectedDate }: TaskListProps) {
       q,
       (snap) => {
         const list: Task[] = [];
-        snap.forEach((d) => {
-          const data = d.data();
-          list.push({
-            id: d.id,
-            userId: data.userId,
-            description: data.description,
-            reason: data.reason ?? "",
-            time: data.time,
-            daysOfWeek: data.daysOfWeek ?? [],
-            intervalDays: data.intervalDays ?? null,
-            startDate: data.startDate ?? "",
-            active: data.active ?? true,
-            alertEnabled: data.alertEnabled ?? false,
-            createdAt: data.createdAt?.toDate() ?? new Date(),
-            completions: data.completions ?? {},
-          });
-        });
+        snap.forEach((d) => list.push(toTask(d.id, d.data())));
         list.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
         setTasks(list);
         setLoading(false);
@@ -64,14 +47,7 @@ export default function TaskList({ selectedDate }: TaskListProps) {
     return () => unsub();
   }, [user]);
 
-  const filteredTasks = tasks.filter((t) => {
-    if (!t.active) return true;
-    if (t.intervalDays && t.startDate) {
-      const diff = daysBetween(selectedDate, t.startDate);
-      return diff >= 0 && diff % t.intervalDays === 0;
-    }
-    return t.daysOfWeek.includes(dayOfWeek);
-  });
+  const filteredTasks = tasks.filter((t) => !t.active || occursOn(t, selectedDate));
 
   const completedTasks = filteredTasks.filter((t) => t.completions?.[selectedDate] === true);
   const pendingTasks = filteredTasks.filter((t) => {

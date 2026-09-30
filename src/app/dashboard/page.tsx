@@ -11,6 +11,7 @@ import TaskAlertWatcher from "@/components/TaskAlertWatcher";
 import ReminderList from "@/components/ReminderList";
 import ReminderAlert from "@/components/ReminderAlert";
 import Calendar from "@/components/Calendar";
+import OverdueBell from "@/components/OverdueBell";
 import { formatDate } from "@/lib/dates";
 
 function DashboardContent() {
@@ -54,6 +55,7 @@ function DashboardContent() {
             <h1 className="text-xl font-bold text-gray-900">Tarefas Diárias</h1>
           </div>
           <div className="flex items-center gap-3">
+            <OverdueBell onSelectDate={setSelectedDate} />
             <span className="text-sm text-gray-500 hidden sm:block">
               {user.displayName || user.email}
             </span>
