@@ -4,7 +4,8 @@ Aplicação web (PWA-ready) para gerenciar **atividades recorrentes** e **lembre
 do dia a dia: cada atividade pode repetir em dias fixos da semana ou a cada N dias,
 dispara alerta na hora marcada (modal + som) e tem histórico de conclusão por data.
 Um **sino no cabeçalho** mostra quantas marcações ficaram em atraso e permite
-concluí-las direto do painel.
+concluí-las direto do painel; clicar numa data em atraso abre aquele dia e leva
+a lista direto até a atividade correspondente (com destaque temporário).
 
 - Produção: https://storsistemas.github.io/tarefasdiarias/
 - Repositório: https://github.com/storsistemas/tarefasdiarias
@@ -44,7 +45,7 @@ src/
     ReminderItem.tsx     # concluir / editar / inativar / excluir
     ReminderForm.tsx     # formulário de lembrete (prioridade e antecedência)
     ReminderAlert.tsx    # toasts de lembrete no horário configurado
-    OverdueBell.tsx      # sino + contador de atividades em atraso (painel para concluir)
+    OverdueBell.tsx      # sino + contador de atraso (clicar na data leva à atividade do dia)
   lib/
     firebase.ts       # inicialização do Firebase (auth + db)
     dates.ts          # helpers de data (hoje, dia da semana, diferença em dias)
@@ -72,7 +73,9 @@ O sino no cabeçalho conta as **marcações pendentes**: para cada atividade **a
 percorre as datas em que ela estava prevista desde a maior data entre a criação e o
 início da recorrência até agora, e conta as que não têm `completions[data] === true`.
 O dia de hoje só entra depois do horário da atividade. O painel permite concluir
-uma data, concluir todas as datas daquela atividade e abrir o dia no calendário.
+uma data, concluir todas as datas daquela atividade e **ir direto para a atividade**:
+clicar na data abre aquele dia no calendário e a lista rola até a atividade
+correspondente, destacada por alguns segundos (âncora `#task-{id}` no `TaskItem`).
 
 Todas as consultas usam apenas um filtro (`where("userId", "==", uid)`), portanto
 **não é necessário índice composto** no Firestore.

@@ -12,14 +12,51 @@ import type { Task, TaskFormData } from "@/types";
 
 interface TaskListProps {
   selectedDate: string;
+  /** Atividade que deve receber o destaque (vinda do painel de atrasos). */
+  focusTaskId?: string | null;
+  /** Muda a cada clique, permitindo focar a mesma atividade de novo. */
+  focusNonce?: number;
 }
 
-export default function TaskList({ selectedDate }: TaskListProps) {
+export default function TaskList({ selectedDate, focusTaskId = null, focusNonce = 0 }: TaskListProps) {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+
+  // Rola até a atividade escolhida no painel de atrasos e a destaca por alguns
+  // segundos. Tenta algumas vezes porque a lista do dia pode chegar depois
+  // (a assinatura do Firestore é assíncrona).
+  useEffect(() => {
+    const target = focusTaskId;
+    if (!target) return;
+
+    let cancelled = false;
+    let attempts = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    function focus() {
+      if (cancelled) return;
+      const el = document.getElementById(`task-${target}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        setHighlightId(target);
+        timer = setTimeout(() => {
+          if (!cancelled) setHighlightId(null);
+        }, 2600);
+        return;
+      }
+      if (attempts++ < 12) timer = setTimeout(focus, 100);
+    }
+
+    timer = setTimeout(focus, 0);
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [focusTaskId, focusNonce, selectedDate]);
 
   useEffect(() => {
     if (!user) return;
@@ -128,7 +165,13 @@ export default function TaskList({ selectedDate }: TaskListProps) {
           </h3>
           <div className="space-y-2">
             {pendingTasks.map((task) => (
-              <TaskItem key={task.id} task={task} selectedDate={selectedDate} onUpdate={() => {}} />
+              <TaskItem
+                key={task.id}
+                task={task}
+                selectedDate={selectedDate}
+                onUpdate={() => {}}
+                highlighted={highlightId === task.id}
+              />
             ))}
           </div>
         </div>
@@ -144,7 +187,13 @@ export default function TaskList({ selectedDate }: TaskListProps) {
           </h3>
           <div className="space-y-2">
             {completedTasks.map((task) => (
-              <TaskItem key={task.id} task={task} selectedDate={selectedDate} onUpdate={() => {}} />
+              <TaskItem
+                key={task.id}
+                task={task}
+                selectedDate={selectedDate}
+                onUpdate={() => {}}
+                highlighted={highlightId === task.id}
+              />
             ))}
           </div>
         </div>
@@ -155,7 +204,13 @@ export default function TaskList({ selectedDate }: TaskListProps) {
           <h3 className="text-sm font-medium text-gray-400 mb-2">Inativas ({inactiveTasks.length})</h3>
           <div className="space-y-2">
             {inactiveTasks.map((task) => (
-              <TaskItem key={task.id} task={task} selectedDate={selectedDate} onUpdate={() => {}} />
+              <TaskItem
+                key={task.id}
+                task={task}
+                selectedDate={selectedDate}
+                onUpdate={() => {}}
+                highlighted={highlightId === task.id}
+              />
             ))}
           </div>
         </div>

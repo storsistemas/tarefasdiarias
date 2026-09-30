@@ -12,9 +12,11 @@ interface TaskItemProps {
   task: Task;
   selectedDate: string;
   onUpdate: () => void;
+  /** Destaca a atividade por alguns segundos quando ela vem do painel de atrasos. */
+  highlighted?: boolean;
 }
 
-export default function TaskItem({ task, selectedDate, onUpdate }: TaskItemProps) {
+export default function TaskItem({ task, selectedDate, onUpdate, highlighted = false }: TaskItemProps) {
   const [editing, setEditing] = useState(false);
   const today = selectedDate;
   const isCompleted = task.completions?.[today] === true;
@@ -68,7 +70,11 @@ export default function TaskItem({ task, selectedDate, onUpdate }: TaskItemProps
 
   if (editing) {
     return (
-      <div className="bg-surface rounded-xl border border-gray-200 p-4">
+      <div
+        id={`task-${task.id}`}
+        data-task-id={task.id}
+        className="scroll-mt-6 bg-surface rounded-xl border border-gray-200 p-4"
+      >
         <TaskForm
           initial={{
             description: task.description,
@@ -87,9 +93,11 @@ export default function TaskItem({ task, selectedDate, onUpdate }: TaskItemProps
 
   return (
     <div
-      className={`bg-surface rounded-xl border p-4 transition ${
+      id={`task-${task.id}`}
+      data-task-id={task.id}
+      className={`scroll-mt-6 bg-surface rounded-xl border p-4 transition ${
         !task.active ? "border-gray-200 opacity-50" : isCompleted ? "border-green-200 bg-green-50" : "border-gray-200"
-      }`}
+      } ${highlighted ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-blue-50 dark:ring-offset-gray-900 shadow-md" : ""}`}
     >
       <div className="flex items-start gap-3">
         <input

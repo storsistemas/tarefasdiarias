@@ -15,6 +15,10 @@ Legenda de prioridade: **P0** = risco imediato, **P1** = desbloqueia o trabalho,
   regra de recorrência unificada em `src/lib/recurrence.ts`; conversão de documentos
   centralizada em `src/lib/mappers.ts`; assinatura em tempo real em `src/lib/useTasks.ts`.
 - `firestore.rules` + `firebase.json` (regras por proprietário) e README documentado.
+- **Clique na data em atraso → ir para a atividade:** cada data do painel do sino virou
+  atalho para o dia + atividade (`OverdueBell.onOpenActivity` → `dashboard/page.tsx` →
+  `TaskList.focusTaskId`/`focusNonce`), com rolagem suave (`scrollIntoView`) e destaque
+  temporário do cartão (`TaskItem.highlighted`, ~2,6s).
 
 ---
 

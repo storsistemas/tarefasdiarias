@@ -19,6 +19,18 @@ function DashboardContent() {
   const { dark, toggle: toggleTheme } = useTheme();
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState(formatDate(new Date()));
+  const [focusTaskId, setFocusTaskId] = useState<string | null>(null);
+  const [focusNonce, setFocusNonce] = useState(0);
+
+  /**
+   * Chamado pelo sino de atrasos: abre a data no calendário e manda a lista
+   * rolar até a atividade correspondente.
+   */
+  function handleOpenActivity(date: string, taskId: string) {
+    setSelectedDate(date);
+    setFocusTaskId(taskId);
+    setFocusNonce((nonce) => nonce + 1);
+  }
 
   useEffect(() => {
     if (!loading && !user) {
@@ -55,7 +67,7 @@ function DashboardContent() {
             <h1 className="text-xl font-bold text-gray-900">Tarefas Diárias</h1>
           </div>
           <div className="flex items-center gap-3">
-            <OverdueBell onSelectDate={setSelectedDate} />
+            <OverdueBell onOpenActivity={handleOpenActivity} />
             <span className="text-sm text-gray-500 hidden sm:block">
               {user.displayName || user.email}
             </span>
@@ -102,7 +114,11 @@ function DashboardContent() {
             <ReminderList />
           </div>
           <div>
-            <TaskList selectedDate={selectedDate} />
+            <TaskList
+              selectedDate={selectedDate}
+              focusTaskId={focusTaskId}
+              focusNonce={focusNonce}
+            />
           </div>
         </div>
       </main>

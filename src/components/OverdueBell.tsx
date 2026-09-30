@@ -14,8 +14,11 @@ import {
 } from "@/lib/dates";
 
 interface OverdueBellProps {
-  /** Ao clicar numa data, o dashboard abre esse dia no calendário e na lista. */
-  onSelectDate?: (date: string) => void;
+  /**
+   * Ao clicar numa data em atraso, o dashboard abre esse dia no calendário e
+   * leva o usuário direto até a atividade correspondente na lista.
+   */
+  onOpenActivity?: (date: string, taskId: string) => void;
 }
 
 /** Quantas datas mostramos por atividade antes de resumir com "+N". */
@@ -34,7 +37,7 @@ function BellIcon({ className }: { className?: string }) {
   );
 }
 
-export default function OverdueBell({ onSelectDate }: OverdueBellProps) {
+export default function OverdueBell({ onOpenActivity }: OverdueBellProps) {
   const { tasks } = useUserTasks();
   const [open, setOpen] = useState(false);
   const [savingKey, setSavingKey] = useState("");
@@ -81,8 +84,8 @@ export default function OverdueBell({ onSelectDate }: OverdueBellProps) {
     }
   }
 
-  function openDate(date: string) {
-    onSelectDate?.(date);
+  function openDate(date: string, taskId: string) {
+    onOpenActivity?.(date, taskId);
     setOpen(false);
   }
 
@@ -212,8 +215,8 @@ export default function OverdueBell({ onSelectDate }: OverdueBellProps) {
                         >
                           <button
                             type="button"
-                            onClick={() => openDate(date)}
-                            title={`Abrir ${date} no calendário`}
+                            onClick={() => openDate(date, task.id!)}
+                            title={`Ir para a atividade de ${date} na lista`}
                             className="cursor-pointer hover:underline"
                           >
                             {WEEKDAY_LABELS[getDayOfWeek(date)]} · {relativeDateLabel(date, now.date)}
@@ -245,7 +248,7 @@ export default function OverdueBell({ onSelectDate }: OverdueBellProps) {
 
             <div className="p-3 border-t border-gray-100 text-xs text-gray-500">
               O contador considera as atividades ativas que passaram do horário sem marcação — inclusive
-              hoje. Clique na data para abrir o dia no calendário.
+              hoje. Clique na data para abrir o dia no calendário e ir direto na atividade.
             </div>
           </div>
         </div>
