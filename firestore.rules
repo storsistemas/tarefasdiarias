@@ -1,0 +1,114 @@
+rules_version = '2';
+
+// =====================================================================
+// Tarefas Diárias — Regras do Cloud Firestore
+// Projeto Firebase: multiplicadores-stor (compartilhado com o app
+// Multiplicadores Stor, que usa as coleções "usuarios" e "modulos_sistema")
+//
+// COMO PUBLICAR:
+//   Firebase Console > Firestore Database > Regras > colar e Publicar
+// ou, com o Firebase CLI autenticado na máquina:
+//   npx firebase-tools login
+//   npx firebase-tools deploy --only firestore:rules --project multiplicadores-stor
+//
+// IMPORTANTE: cada usuário só enxerga e altera os próprios dados.
+// O documento precisa ter o campo userId == uid do usuário autenticado
+// (é exatamente o que o app grava em src/components/TaskList.tsx,
+// ReminderList.tsx e src/app/cadastro/page.tsx).
+// =====================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // -----------------------------------------------------------------
+    // APP: TAREFAS DIÁRIAS
+    // -----------------------------------------------------------------
+
+    // /tasks/{taskId}
+    // campos: userId, description, reason, time, daysOfWeek, intervalDays,
+    //         startDate, active, alertEnabled, completions, createdAt, updatedAt
+    match /tasks/{taskId} {
+      allow read, delete: if signedIn()
+        && resource.data.userId == request.auth.uid;
+
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.description is string
+        && request.resource.data.description.size() > 0
+        && request.resource.data.description.size() <= 500
+        && request.resource.data.time is string;
+
+      allow update: if signedIn()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == request.auth.uid;
+    }
+
+    // /reminders/{reminderId}
+    // campos: userId, text, priority, date, time, remindValue, remindUnit,
+    //         resolved, active, createdAt, updatedAt
+    match /reminders/{reminderId} {
+      allow read, delete: if signedIn()
+        && resource.data.userId == request.auth.uid;
+
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 500
+        && request.resource.data.priority in ['baixo', 'normal', 'urgente']
+        && request.resource.data.remindUnit in ['minutos', 'horas', 'dias'];
+
+      allow update: if signedIn()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == request.auth.uid;
+    }
+
+    // /users/{uid} — perfil criado no cadastro do Tarefas Diárias.
+    // O ID do documento é o próprio uid (src/app/cadastro/page.tsx).
+    match /users/{userId} {
+      allow read, create, update, delete: if signedIn()
+        && request.auth.uid == userId;
+    }
+
+    // -----------------------------------------------------------------
+    // APP: MULTIPLICADORES STOR (mantido igual ao documento
+    // firebase-rules.txt do projeto Multiplicadores-Stor)
+    // -----------------------------------------------------------------
+
+    match /usuarios/{userId} {
+
+      function isAdmin() {
+        return signedIn() &&
+          get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.role == 'admin';
+      }
+
+      function isAprovado() {
+        return signedIn() &&
+          get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.status == 'aprovado';
+      }
+
+      allow read: if signedIn() && (
+        request.auth.uid == userId ||
+        isAdmin() ||
+        isAprovado()
+      );
+
+      allow create: if signedIn() &&
+        request.auth.uid == userId &&
+        request.resource.data.status == 'pendente';
+
+      allow update, delete: if isAdmin();
+    }
+
+    match /modulos_sistema/{document=**} {
+      allow read, write: if signedIn() && (
+        get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.status == 'aprovado' ||
+        get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.role == 'admin'
+      );
+    }
+  }
+}
