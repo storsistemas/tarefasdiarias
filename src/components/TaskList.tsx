@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { collection, query, where, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
+import { useEffect, useRef, useState } from "react";
+import { collection, query, where, onSnapshot, addDoc, doc, writeBatch, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./AuthProvider";
 import { toTask } from "@/lib/mappers";
@@ -9,6 +9,19 @@ import { occursOn } from "@/lib/recurrence";
 import TaskItem from "./TaskItem";
 import TaskForm from "./TaskForm";
 import type { Task, TaskFormData } from "@/types";
+
+/** Chave de ordenação manual de uma tarefa em um dia específico. */
+function sortKey(task: Task, date: string) {
+  return task.sortOrders?.[date] ?? Number.MAX_SAFE_INTEGER;
+}
+
+/** Ordena pela posição manual do dia e usa createdAt como desempate. */
+function compareTasks(a: Task, b: Task, date: string) {
+  const ra = sortKey(a, date);
+  const rb = sortKey(b, date);
+  if (ra !== rb) return ra - rb;
+  return b.createdAt.getTime() - a.createdAt.getTime();
+}
 
 interface TaskListProps {
   selectedDate: string;
@@ -25,6 +38,8 @@ export default function TaskList({ selectedDate, focusTaskId = null, focusNonce 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const pendingListRef = useRef<HTMLDivElement>(null);
 
   // Rola até a atividade escolhida no painel de atrasos e a destaca por alguns
   // segundos. Tenta algumas vezes porque a lista do dia pode chegar depois
@@ -71,7 +86,7 @@ export default function TaskList({ selectedDate, focusTaskId = null, focusNonce 
       (snap) => {
         const list: Task[] = [];
         snap.forEach((d) => list.push(toTask(d.id, d.data())));
-        list.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        list.sort((a, b) => compareTasks(a, b, selectedDate));
         setTasks(list);
         setLoading(false);
       },
@@ -82,15 +97,17 @@ export default function TaskList({ selectedDate, focusTaskId = null, focusNonce 
       }
     );
     return () => unsub();
-  }, [user]);
+  }, [user, selectedDate]);
 
   const filteredTasks = tasks.filter((t) => !t.active || occursOn(t, selectedDate));
 
   const completedTasks = filteredTasks.filter((t) => t.completions?.[selectedDate] === true);
-  const pendingTasks = filteredTasks.filter((t) => {
-    if (!t.active) return false;
-    return t.completions?.[selectedDate] !== true;
-  });
+  const pendingTasks = filteredTasks
+    .filter((t) => {
+      if (!t.active) return false;
+      return t.completions?.[selectedDate] !== true;
+    })
+    .sort((a, b) => compareTasks(a, b, selectedDate));
   const inactiveTasks = filteredTasks.filter((t) => !t.active);
 
   async function handleCreate(data: TaskFormData) {
@@ -106,10 +123,130 @@ export default function TaskList({ selectedDate, focusTaskId = null, focusNonce 
       active: true,
       alertEnabled: false,
       completions: {},
+      sortOrders: {},
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
     setShowForm(false);
+  }
+
+  /** Persiste a nova ordem dos pendentes do dia no Firestore (lote único). */
+  async function persistOrder(ordered: Task[]) {
+    if (!user) return;
+    const batch = writeBatch(db);
+    ordered.forEach((task, index) => {
+      if (task.id == null) return;
+      batch.update(doc(db, "tasks", task.id), {
+        [`sortOrders.${selectedDate}`]: index,
+        updatedAt: serverTimestamp(),
+      });
+    });
+    try {
+      await batch.commit();
+    } catch (err) {
+      console.error("Erro ao salvar a ordem:", err);
+    }
+  }
+
+  /** Move o pendente de `fromIndex` para `toIndex` (usado pelos botões ↑/↓). */
+  function moveTaskByIndex(fromIndex: number, toIndex: number) {
+    if (toIndex < 0 || toIndex >= pendingTasks.length || fromIndex === toIndex) return;
+    const next = [...pendingTasks];
+    const [moved] = next.splice(fromIndex, 1);
+    next.splice(toIndex, 0, moved);
+    applyOrder(next);
+  }
+
+  /** Atualiza o estado local com a nova ordem. */
+  function updateLocalOrder(ordered: Task[]) {
+    const positions = new Map(ordered.map((task, index) => [task.id, index]));
+    setTasks((prev) =>
+      prev.map((task) => {
+        const index = positions.get(task.id);
+        if (index == null || task.sortOrders?.[selectedDate] === index) return task;
+        return { ...task, sortOrders: { ...task.sortOrders, [selectedDate]: index } };
+      })
+    );
+  }
+
+  /** Atualiza o estado local com a nova ordem e grava no Firestore. */
+  function applyOrder(ordered: Task[]) {
+    updateLocalOrder(ordered);
+    void persistOrder(ordered);
+  }
+
+  /**
+   * Inicia o arraste do card com pointer events (funciona com mouse e toque).
+   * Reordena ao vivo enquanto o dedo/mouse cruza outros cards; grava ao soltar.
+   */
+  function startDrag(taskId: string, e: React.PointerEvent) {
+    if (e.button !== 0 && e.pointerType === "mouse") return;
+    e.preventDefault();
+
+    const startY = e.clientY;
+    let active = false;
+    const currentOrder: Task[] = [...pendingTasks];
+
+    const cardRects = () => {
+      const list = pendingListRef.current;
+      if (!list) return [];
+      return Array.from(list.querySelectorAll<HTMLElement>("[data-task-id]")).map((el) => ({
+        id: el.dataset.taskId ?? "",
+        top: el.getBoundingClientRect().top,
+        height: el.getBoundingClientRect().height,
+      }));
+    };
+    let rects = cardRects();
+
+    const reorderTo = (clientY: number) => {
+      const from = currentOrder.findIndex((t) => t.id === taskId);
+      if (from < 0) return;
+      let to = from;
+      rects.forEach((rect, index) => {
+        if (index === from) return;
+        const mid = rect.top + rect.height / 2;
+        if (clientY > mid && index < from) to = Math.max(to, index);
+        if (clientY < mid && index > from) to = Math.min(to, index);
+      });
+      if (to === from) return;
+      const next = [...currentOrder];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      currentOrder.splice(0, currentOrder.length, ...next);
+      updateLocalOrder(currentOrder);
+      // Recalcula as posições dos cards depois do reflow.
+      requestAnimationFrame(() => {
+        rects = cardRects();
+      });
+    };
+
+    const onMove = (ev: PointerEvent) => {
+      if (!active) {
+        if (Math.abs(ev.clientY - startY) < 6) return;
+        active = true;
+        setDraggingId(taskId);
+        document.body.style.userSelect = "none";
+        document.body.style.cursor = "grabbing";
+        rects = cardRects();
+      }
+      reorderTo(ev.clientY);
+    };
+
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+      document.body.style.userSelect = "";
+      document.body.style.cursor = "";
+      if (active) {
+        setDraggingId(null);
+        void persistOrder(currentOrder);
+      }
+    };
+
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
   }
 
   if (loading) {
@@ -163,14 +300,24 @@ export default function TaskList({ selectedDate, focusTaskId = null, focusNonce 
             </svg>
             Pendentes ({pendingTasks.length})
           </h3>
-          <div className="space-y-2">
-            {pendingTasks.map((task) => (
+          <div
+            ref={pendingListRef}
+            className="space-y-2"
+          >
+            {pendingTasks.map((task, index) => (
               <TaskItem
                 key={task.id}
                 task={task}
                 selectedDate={selectedDate}
                 onUpdate={() => {}}
                 highlighted={highlightId === task.id}
+                reorderable
+                isDragging={draggingId === task.id}
+                onPointerDown={(e) => startDrag(task.id!, e)}
+                onMoveUp={index > 0 ? () => moveTaskByIndex(index, index - 1) : undefined}
+                onMoveDown={
+                  index < pendingTasks.length - 1 ? () => moveTaskByIndex(index, index + 1) : undefined
+                }
               />
             ))}
           </div>

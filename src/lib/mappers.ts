@@ -15,6 +15,7 @@ export function toTask(id: string, data: DocumentData): Task {
     active: data.active ?? true,
     alertEnabled: data.alertEnabled ?? false,
     createdAt: data.createdAt?.toDate() ?? new Date(),
+    sortOrders: data.sortOrders ?? {},
     completions: data.completions ?? {},
   };
 }

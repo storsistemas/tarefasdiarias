@@ -14,9 +14,25 @@ interface TaskItemProps {
   onUpdate: () => void;
   /** Destaca a atividade por alguns segundos quando ela vem do painel de atrasos. */
   highlighted?: boolean;
+  /** Habilita o arraste para reordenar (lista de pendentes). */
+  reorderable?: boolean;
+  isDragging?: boolean;
+  onPointerDown?: (e: React.PointerEvent) => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
 }
 
-export default function TaskItem({ task, selectedDate, onUpdate, highlighted = false }: TaskItemProps) {
+export default function TaskItem({
+  task,
+  selectedDate,
+  onUpdate,
+  highlighted = false,
+  reorderable = false,
+  isDragging = false,
+  onPointerDown,
+  onMoveUp,
+  onMoveDown,
+}: TaskItemProps) {
   const [editing, setEditing] = useState(false);
   const today = selectedDate;
   const isCompleted = task.completions?.[today] === true;
@@ -95,11 +111,65 @@ export default function TaskItem({ task, selectedDate, onUpdate, highlighted = f
     <div
       id={`task-${task.id}`}
       data-task-id={task.id}
+      onPointerDown={(e) => {
+        // Não inicia arraste ao interagir com botões/checkbox do card.
+        if (!reorderable || !onPointerDown) return;
+        const target = e.target as HTMLElement;
+        if (target.closest("button, input, a, textarea, select")) return;
+        onPointerDown(e);
+      }}
       className={`scroll-mt-6 bg-surface rounded-xl border p-4 transition ${
         !task.active ? "border-gray-200 opacity-50" : isCompleted ? "border-green-200 bg-green-50" : "border-gray-200"
-      } ${highlighted ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-blue-50 dark:ring-offset-gray-900 shadow-md" : ""}`}
+      } ${highlighted ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-blue-50 dark:ring-offset-gray-900 shadow-md" : ""} ${
+        reorderable ? "cursor-grab active:cursor-grabbing touch-pan-y" : ""
+      } ${isDragging ? "opacity-40 shadow-lg scale-[1.01]" : ""}`}
     >
       <div className="flex items-start gap-3">
+        {reorderable && (
+          <div className="flex flex-col items-center gap-1 pt-0.5">
+            <span
+              onPointerDown={(e) => onPointerDown?.(e)}
+              className="p-1 text-gray-300 hover:text-gray-500 dark:text-gray-600 dark:hover:text-gray-400 cursor-grab active:cursor-grabbing rounded transition touch-none select-none"
+              title="Arrastar para reordenar"
+              aria-label="Arrastar para reordenar"
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <circle cx="9" cy="5" r="1.5" />
+                <circle cx="15" cy="5" r="1.5" />
+                <circle cx="9" cy="12" r="1.5" />
+                <circle cx="15" cy="12" r="1.5" />
+                <circle cx="9" cy="19" r="1.5" />
+                <circle cx="15" cy="19" r="1.5" />
+              </svg>
+            </span>
+            <div className="flex flex-col">
+              <button
+                type="button"
+                onClick={onMoveUp}
+                disabled={!onMoveUp}
+                className="p-0.5 text-gray-300 hover:text-blue-600 disabled:opacity-30 disabled:hover:text-gray-300 dark:text-gray-600 dark:disabled:opacity-30 rounded transition cursor-pointer disabled:cursor-default"
+                title="Mover para cima"
+                aria-label="Mover para cima"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={onMoveDown}
+                disabled={!onMoveDown}
+                className="p-0.5 text-gray-300 hover:text-blue-600 disabled:opacity-30 disabled:hover:text-gray-300 dark:text-gray-600 dark:disabled:opacity-30 rounded transition cursor-pointer disabled:cursor-default"
+                title="Mover para baixo"
+                aria-label="Mover para baixo"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
         <input
           type="checkbox"
           checked={isCompleted}

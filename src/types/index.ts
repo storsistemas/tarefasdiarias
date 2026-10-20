@@ -10,6 +10,8 @@ export interface Task {
   active: boolean;
   alertEnabled: boolean;
   createdAt: Date;
+  /** Posição manual por dia (arrastar e soltar), chave = data (YYYY-MM-DD). */
+  sortOrders: Record<string, number>;
   completions: Record<string, boolean>;
 }
 
